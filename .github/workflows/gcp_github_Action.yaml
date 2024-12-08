@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main  # Trigger on commits to the main branch
 
 permissions:
   id-token: write
@@ -12,22 +15,20 @@ jobs:
   Get_OIDC_ID_token:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
     - id: 'auth'
       name: 'Authenticate to GCP'
       uses: 'google-github-actions/auth@v2.1.3'
       with:
-        debug: 'true'
-        create_credentials_file: 'true'
-        workload_identity_provider: 'projects/gcp-labs-yfrvlgrl/locations/global/workloadIdentityPools/iam-lab-7-gh-pool/providers/iam-lab-7-gh-pool-oidc-provider'
-        service_account: 'iam-lab-7-target@gcp-labs-yfrvlgrl.iam.gserviceaccount.com'
-
+          create_credentials_file: 'true'
+          workload_identity_provider: 'projects/gcp-labs-yfrvlgrl/locations/global/workloadIdentityPools/iam-lab-7-gh-pool/providers/iam-lab-7-gh-pool-oidc-provider'
+          service_account: 'iam-lab-7-target@gcp-labs-yfrvlgrl.iam.gserviceaccount.com'
+          activate_credentials_file: true
     - id: 'gcloud'
-      name: 'Run gcloud commands'
+      name: 'gcloud'
       run: |-
+        gcloud config set project gcp-labs-yfrvlgrl
+        gcloud config set account iam-lab-7-target@gcp-labs-yfrvlgrl.iam.gserviceaccount.com
         gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
         gcloud auth list
-        gcloud config set project gcp-labs-yfrvlgrl
-        gcloud storage buckets list
+        gcloud projects list
+        gcloud secrets list
