@@ -12,17 +12,22 @@ jobs:
   Get_OIDC_ID_token:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - id: 'auth'
       name: 'Authenticate to GCP'
       uses: 'google-github-actions/auth@v2.1.3'
       with:
-          create_credentials_file: 'true'
-          workload_identity_provider: 'projects/gcp-labs-yfrvlgrl/locations/global/workloadIdentityPools/iam-lab-7-gh-pool/providers/iam-lab-7-gh-pool-oidc-provider'
-          service_account: 'iam-lab-7-target@gcp-labs-yfrvlgrl.iam.gserviceaccount.com'
+        debug: 'true'
+        create_credentials_file: 'true'
+        workload_identity_provider: 'projects/gcp-labs-yfrvlgrl/locations/global/workloadIdentityPools/iam-lab-7-gh-pool/providers/iam-lab-7-gh-pool-oidc-provider'
+        service_account: 'iam-lab-7-target@gcp-labs-yfrvlgrl.iam.gserviceaccount.com'
+
     - id: 'gcloud'
-      name: 'gcloud'
+      name: 'Run gcloud commands'
       run: |-
         gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
         gcloud auth list
-        gcloud config set project digital-bonfire-410512
+        gcloud config set project gcp-labs-yfrvlgrl
         gcloud storage buckets list
